@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Monte Carlo FPGA | High-Speed Financial Simulation</title>
+  <meta name="description" content="Real-time Monte Carlo financial simulation on FPGA. 15x faster than CPU. IEEE EOH 2026.">
+  <meta property="og:title" content="Monte Carlo FPGA | High-Speed Financial Simulation">
+  <meta property="og:description" content="Real-time Monte Carlo financial simulation on FPGA. 15x faster than CPU.">
+  <meta property="og:type" content="website">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <!-- ========== NAVBAR ========== -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-container">
+      <a href="#hero" class="nav-logo">
+        <svg class="logo-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <rect x="3" y="3" width="18" height="18" rx="3" stroke="currentColor" stroke-width="1.5"/>
+          <rect x="7" y="7" width="4" height="4" rx="0.5" fill="var(--color-accent)" opacity="0.6"/>
+          <rect x="13" y="7" width="4" height="4" rx="0.5" fill="var(--color-accent)" opacity="0.3"/>
+          <rect x="7" y="13" width="4" height="4" rx="0.5" fill="var(--color-accent)" opacity="0.3"/>
+          <rect x="13" y="13" width="4" height="4" rx="0.5" fill="var(--color-accent)" opacity="0.6"/>
+        </svg>
+        MonteCarlo<span class="logo-accent">FPGA</span>
+      </a>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="#problem">Problem</a></li>
+        <li><a href="#approach">Approach</a></li>
+        <li><a href="#architecture">Architecture</a></li>
+        <li><a href="#performance">Performance</a></li>
+        <li><a href="#team">Team</a></li>
+      </ul>
+      <button class="nav-hamburger" id="navHamburger" aria-label="Toggle menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ========== HERO ========== -->
+  <section class="hero" id="hero">
+    <!-- Monte Carlo simulation paths -->
+    <svg class="hero-paths" viewBox="0 0 1400 600" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <radialGradient id="pathGlow" cx="0%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#b45309" stop-opacity="0.06"/>
+          <stop offset="100%" stop-color="#b45309" stop-opacity="0"/>
+        </radialGradient>
+      </defs>
+      <rect fill="url(#pathGlow)" width="1400" height="600"/>
+      <!-- Paths fan from origin (left center), outermost first -->
+      <path style="animation-delay:.52s" opacity=".05" d="M0,300 C120,288 280,310 420,262 C560,218 680,240 820,188 C960,152 1100,165 1250,118 L1400,85"/>
+      <path style="animation-delay:.4s"  opacity=".06" d="M0,300 C130,290 270,300 410,272 C550,248 680,258 820,225 C960,198 1100,208 1250,178 L1400,155"/>
+      <path style="animation-delay:.3s"  opacity=".08" d="M0,300 C110,294 260,305 400,282 C540,262 670,272 810,250 C950,232 1090,240 1230,218 L1400,200"/>
+      <path style="animation-delay:.2s"  opacity=".10" d="M0,300 C140,296 280,302 420,290 C560,280 690,286 830,272 C970,260 1110,265 1250,252 L1400,242"/>
+      <path style="animation-delay:.12s" opacity=".12" d="M0,300 C120,298 260,296 400,298 C540,293 680,297 820,290 C960,286 1100,289 1250,282 L1400,278"/>
+      <path style="animation-delay:.06s" opacity=".15" d="M0,300 C100,299 250,298 400,300 C550,297 700,299 850,296 C1000,294 1150,296 1300,292 L1400,290"/>
+      <!-- Mean path, highlighted -->
+      <path class="hero-path-mean" style="animation-delay:0s" opacity=".25" d="M0,300 C200,299 400,301 600,300 C800,300 1000,299 1200,300 L1400,300"/>
+      <path style="animation-delay:.06s" opacity=".15" d="M0,300 C100,301 250,302 400,300 C550,303 700,301 850,305 C1000,307 1150,305 1300,310 L1400,312"/>
+      <path style="animation-delay:.12s" opacity=".12" d="M0,300 C120,302 260,305 400,303 C540,308 680,304 820,312 C960,316 1100,313 1250,320 L1400,325"/>
+      <path style="animation-delay:.2s"  opacity=".10" d="M0,300 C140,305 280,300 420,312 C560,322 690,316 830,330 C970,342 1110,338 1250,350 L1400,360"/>
+      <path style="animation-delay:.3s"  opacity=".08" d="M0,300 C110,308 260,298 400,320 C540,342 670,332 810,355 C950,375 1090,368 1230,388 L1400,408"/>
+      <path style="animation-delay:.4s"  opacity=".06" d="M0,300 C130,312 270,302 410,332 C550,358 680,348 820,380 C960,408 1100,398 1250,428 L1400,450"/>
+      <path style="animation-delay:.52s" opacity=".05" d="M0,300 C120,315 280,298 420,340 C560,380 680,365 820,410 C960,448 1100,438 1250,478 L1400,510"/>
+    </svg>
+    <div class="hero-content" data-hero-parallax>
+      <h1 class="hero-title">
+        <span class="hero-line" data-hero-stagger="1">Monte Carlo</span>
+        <span class="hero-line hero-line-accent" data-hero-stagger="2">at Hardware Speed</span>
+      </h1>
+      <p class="hero-subtitle" data-hero-stagger="3">
+        We built a Monte Carlo options pricing engine on FPGA hardware. Same algorithm as a CPU, 15x the speed, identical accuracy.
+      </p>
+      <div class="hero-divider"></div>
+      <div class="hero-metrics" data-hero-stagger="4">
+        <div class="metric">
+          <span class="metric-value">150<span class="metric-unit">ms</span></span>
+          <span class="metric-label">FPGA Latency</span>
+        </div>
+        <div class="metric-sep"></div>
+        <div class="metric">
+          <span class="metric-value">15<span class="metric-unit">x</span></span>
+          <span class="metric-label">Faster than CPU</span>
+        </div>
+        <div class="metric-sep"></div>
+        <div class="metric">
+          <span class="metric-value">10K</span>
+          <span class="metric-label">Paths / Batch</span>
+        </div>
+      </div>
+    </div>
+    <div class="scroll-cue" data-hero-stagger="5">
+      <span>Scroll to explore</span>
+      <svg width="16" height="24" viewBox="0 0 16 24" fill="none" aria-hidden="true">
+        <rect x="1" y="1" width="14" height="22" rx="7" stroke="currentColor" stroke-width="1.5"/>
+        <circle class="scroll-dot" cx="8" cy="7" r="2" fill="currentColor"/>
+      </svg>
+    </div>
+  </section>
+
+  <!-- ========== PROBLEM ========== -->
+  <section class="section" id="problem">
+    <div class="container">
+      <div class="section-header fade-in">
+        <span class="section-tag">The Problem</span>
+        <h2 class="section-title">Why Monte Carlo?</h2>
+      </div>
+      <div class="text-reveal-wrap" data-text-reveal>
+        <p class="text-reveal-paragraph">
+          Financial option pricing requires simulating thousands of possible market paths. Traditional analytical solutions cannot handle complex, path-dependent derivatives like Asian or barrier options. Monte Carlo methods solve this by simulating random price walks, but running ten thousand paths on a CPU takes seconds, not the milliseconds that live trading demands. Hardware acceleration bridges this gap.
+        </p>
+      </div>
+      <div class="benefit-cards">
+        <div class="benefit-card fade-in">
+          <div class="benefit-icon">
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+              <path d="M4 24L10 14L16 18L22 8L28 12" stroke="var(--color-accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M4 24L10 14L16 18L22 8L28 12V24H4Z" fill="var(--color-accent)" opacity="0.08"/>
+            </svg>
+          </div>
+          <h3>Path-Dependent Pricing</h3>
+          <p>Asian, barrier, and lookback options depend on the entire price path, not just the endpoint.</p>
+        </div>
+        <div class="benefit-card fade-in">
+          <div class="benefit-icon">
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+              <circle cx="16" cy="16" r="12" stroke="var(--color-accent)" stroke-width="2" opacity="0.3"/>
+              <circle cx="16" cy="16" r="7" stroke="var(--color-accent)" stroke-width="2" opacity="0.5"/>
+              <circle cx="16" cy="16" r="2.5" fill="var(--color-accent)"/>
+            </svg>
+          </div>
+          <h3>Accuracy at Scale</h3>
+          <p>More simulation paths means better accuracy. 10,000+ paths with hardware acceleration. No latency penalty.</p>
+        </div>
+        <div class="benefit-card fade-in">
+          <div class="benefit-icon">
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+              <path d="M16 4V8M16 24V28M4 16H8M24 16H28" stroke="var(--color-accent)" stroke-width="2" stroke-linecap="round"/>
+              <path d="M7.5 7.5L10 10M22 22L24.5 24.5M24.5 7.5L22 10M10 22L7.5 24.5" stroke="var(--color-accent)" stroke-width="2" stroke-linecap="round" opacity="0.5"/>
+              <circle cx="16" cy="16" r="5" stroke="var(--color-accent)" stroke-width="2"/>
+            </svg>
+          </div>
+          <h3>Real-Time Speed</h3>
+          <p>Trading desks need pricing in milliseconds. FPGA acceleration delivers deterministic, sub-second latency.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== APPROACH ========== -->
+  <section class="section section-alt" id="approach">
+    <div class="container">
+      <div class="section-header fade-in">
+        <span class="section-tag">Our Approach</span>
+        <h2 class="section-title">Two Platforms, One Algorithm</h2>
+        <p class="section-subtitle">
+          We implement the same Monte Carlo engine on FPGA and CPU to provide a direct, apples-to-apples comparison of hardware acceleration.
+        </p>
+      </div>
+      <div class="platform-cards">
+        <div class="platform-card platform-card-fpga fade-in">
+          <div class="platform-badge">Fastest</div>
+          <div class="platform-icon">
+            <svg width="48" height="48" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+              <rect x="8" y="8" width="32" height="32" rx="4" stroke="currentColor" stroke-width="1.5"/>
+              <rect x="14" y="14" width="8" height="8" rx="1" fill="currentColor" opacity="0.2"/>
+              <rect x="26" y="14" width="8" height="8" rx="1" fill="currentColor" opacity="0.2"/>
+              <rect x="14" y="26" width="8" height="8" rx="1" fill="currentColor" opacity="0.2"/>
+              <rect x="26" y="26" width="8" height="8" rx="1" fill="currentColor" opacity="0.2"/>
+              <line x1="4" y1="16" x2="8" y2="16" stroke="currentColor" stroke-width="1.5"/>
+              <line x1="4" y1="24" x2="8" y2="24" stroke="currentColor" stroke-width="1.5"/>
+              <line x1="4" y1="32" x2="8" y2="32" stroke="currentColor" stroke-width="1.5"/>
+              <line x1="40" y1="16" x2="44" y2="16" stroke="currentColor" stroke-width="1.5"/>
+              <line x1="40" y1="24" x2="44" y2="24" stroke="currentColor" stroke-width="1.5"/>
+              <line x1="40" y1="32" x2="44" y2="32" stroke="currentColor" stroke-width="1.5"/>
+              <line x1="16" y1="4" x2="16" y2="8" stroke="currentColor" stroke-width="1.5"/>
+              <line x1="24" y1="4" x2="24" y2="8" stroke="currentColor" stroke-width="1.5"/>
+              <line x1="32" y1="4" x2="32" y2="8" stroke="currentColor" stroke-width="1.5"/>
+              <line x1="16" y1="40" x2="16" y2="44" stroke="currentColor" stroke-width="1.5"/>
+              <line x1="24" y1="40" x2="24" y2="44" stroke="currentColor" stroke-width="1.5"/>
+              <line x1="32" y1="40" x2="32" y2="44" stroke="currentColor" stroke-width="1.5"/>
+            </svg>
+          </div>
+          <h3>FPGA</h3>
+          <p class="platform-desc">Custom pipelined datapath in Verilog. Massively parallel path generation with deterministic latency.</p>
+          <div class="platform-stats">
+            <div class="platform-stat">
+              <span class="platform-stat-value">150ms</span>
+              <span class="platform-stat-label">Latency</span>
+            </div>
+            <div class="platform-stat">
+              <span class="platform-stat-value">66,666</span>
+              <span class="platform-stat-label">Paths/sec</span>
+            </div>
+          </div>
+          <span class="platform-tech">Verilog &middot; DE10-Nano &middot; Fixed-Point</span>
+        </div>
+
+        <div class="platform-card platform-card-cpu fade-in">
+          <div class="platform-icon">
+            <svg width="48" height="48" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+              <rect x="12" y="12" width="24" height="24" rx="3" stroke="currentColor" stroke-width="1.5"/>
+              <rect x="18" y="18" width="12" height="12" rx="2" fill="currentColor" opacity="0.15"/>
+              <circle cx="24" cy="24" r="3" fill="currentColor" opacity="0.3"/>
+              <line x1="8" y1="18" x2="12" y2="18" stroke="currentColor" stroke-width="1.5"/>
+              <line x1="8" y1="24" x2="12" y2="24" stroke="currentColor" stroke-width="1.5"/>
+              <line x1="8" y1="30" x2="12" y2="30" stroke="currentColor" stroke-width="1.5"/>
+              <line x1="36" y1="18" x2="40" y2="18" stroke="currentColor" stroke-width="1.5"/>
+              <line x1="36" y1="24" x2="40" y2="24" stroke="currentColor" stroke-width="1.5"/>
+              <line x1="36" y1="30" x2="40" y2="30" stroke="currentColor" stroke-width="1.5"/>
+              <line x1="18" y1="8" x2="18" y2="12" stroke="currentColor" stroke-width="1.5"/>
+              <line x1="24" y1="8" x2="24" y2="12" stroke="currentColor" stroke-width="1.5"/>
+              <line x1="30" y1="8" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/>
+              <line x1="18" y1="36" x2="18" y2="40" stroke="currentColor" stroke-width="1.5"/>
+              <line x1="24" y1="36" x2="24" y2="40" stroke="currentColor" stroke-width="1.5"/>
+              <line x1="30" y1="36" x2="30" y2="40" stroke="currentColor" stroke-width="1.5"/>
+            </svg>
+          </div>
+          <h3>CPU</h3>
+          <p class="platform-desc">Optimized C++ with SIMD intrinsics. Baseline comparison. Fast for small batches, but doesn't scale.</p>
+          <div class="platform-stats">
+            <div class="platform-stat">
+              <span class="platform-stat-value">2,250ms</span>
+              <span class="platform-stat-label">Latency</span>
+            </div>
+            <div class="platform-stat">
+              <span class="platform-stat-value">4,444</span>
+              <span class="platform-stat-label">Paths/sec</span>
+            </div>
+          </div>
+          <span class="platform-tech">C++ &middot; AVX2 &middot; Float64</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== ARCHITECTURE ========== -->
+  <section class="section" id="architecture">
+    <div class="container">
+      <div class="section-header fade-in">
+        <span class="section-tag">System Design</span>
+        <h2 class="section-title">FPGA Pipeline Architecture</h2>
+        <p class="section-subtitle">
+          A deeply pipelined datapath achieves single-cycle throughput per simulation step, processing multiple paths simultaneously.
+        </p>
+      </div>
+    </div>
+    <div class="pipeline-scroll" data-sticky-pipeline>
+      <div class="pipeline-track">
+        <div class="pipeline-stages">
+          <div class="pipeline-stage" data-stage="0">
+            <div class="stage-icon">
+              <svg width="36" height="36" viewBox="0 0 36 36" fill="none" aria-hidden="true">
+                <rect x="6" y="8" width="24" height="20" rx="3" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M14 18L18 22L14 26" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"/>
+                <line x1="6" y1="14" x2="30" y2="14" stroke="currentColor" stroke-width="1.5"/>
+              </svg>
+            </div>
+            <h4>Input</h4>
+            <p>S&#8320;, K, r, &#963;, T</p>
+          </div>
+          <svg class="pipeline-connector" data-connector="0" viewBox="0 0 60 4" preserveAspectRatio="none" aria-hidden="true">
+            <line x1="0" y1="2" x2="60" y2="2" stroke="var(--color-accent)" stroke-width="2" stroke-dasharray="60" stroke-dashoffset="60"/>
+          </svg>
+          <div class="pipeline-stage" data-stage="1">
+            <div class="stage-icon">
+              <svg width="36" height="36" viewBox="0 0 36 36" fill="none" aria-hidden="true">
+                <circle cx="12" cy="14" r="3" stroke="currentColor" stroke-width="1.5"/>
+                <circle cx="24" cy="14" r="3" stroke="currentColor" stroke-width="1.5"/>
+                <circle cx="12" cy="24" r="3" stroke="currentColor" stroke-width="1.5"/>
+                <circle cx="24" cy="24" r="3" stroke="currentColor" stroke-width="1.5"/>
+                <circle cx="18" cy="19" r="3" stroke="currentColor" stroke-width="1.5" opacity="0.4"/>
+              </svg>
+            </div>
+            <h4>RNG Engine</h4>
+            <p>Mersenne Twister + Box-Muller</p>
+          </div>
+          <svg class="pipeline-connector" data-connector="1" viewBox="0 0 60 4" preserveAspectRatio="none" aria-hidden="true">
+            <line x1="0" y1="2" x2="60" y2="2" stroke="var(--color-accent)" stroke-width="2" stroke-dasharray="60" stroke-dashoffset="60"/>
+          </svg>
+          <div class="pipeline-stage" data-stage="2">
+            <div class="stage-icon">
+              <svg width="36" height="36" viewBox="0 0 36 36" fill="none" aria-hidden="true">
+                <path d="M8 28L14 12L20 20L26 8L32 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M8 28L14 12L20 20L26 8L32 16" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.1"/>
+              </svg>
+            </div>
+            <h4>Simulator</h4>
+            <p>GBM Step Pipeline &times;8</p>
+          </div>
+          <svg class="pipeline-connector" data-connector="2" viewBox="0 0 60 4" preserveAspectRatio="none" aria-hidden="true">
+            <line x1="0" y1="2" x2="60" y2="2" stroke="var(--color-accent)" stroke-width="2" stroke-dasharray="60" stroke-dashoffset="60"/>
+          </svg>
+          <div class="pipeline-stage" data-stage="3">
+            <div class="stage-icon">
+              <svg width="36" height="36" viewBox="0 0 36 36" fill="none" aria-hidden="true">
+                <rect x="8" y="20" width="5" height="8" rx="1" fill="currentColor" opacity="0.2"/>
+                <rect x="15.5" y="14" width="5" height="14" rx="1" fill="currentColor" opacity="0.3"/>
+                <rect x="23" y="10" width="5" height="18" rx="1" fill="currentColor" opacity="0.4"/>
+              </svg>
+            </div>
+            <h4>Accumulator</h4>
+            <p>Payoff &amp; Running Average</p>
+          </div>
+          <svg class="pipeline-connector" data-connector="3" viewBox="0 0 60 4" preserveAspectRatio="none" aria-hidden="true">
+            <line x1="0" y1="2" x2="60" y2="2" stroke="var(--color-accent)" stroke-width="2" stroke-dasharray="60" stroke-dashoffset="60"/>
+          </svg>
+          <div class="pipeline-stage" data-stage="4">
+            <div class="stage-icon">
+              <svg width="36" height="36" viewBox="0 0 36 36" fill="none" aria-hidden="true">
+                <circle cx="18" cy="18" r="10" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M13 18L16.5 21.5L23 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <h4>Output</h4>
+            <p>Price &amp; Confidence Interval</p>
+          </div>
+        </div>
+        <div class="pipeline-details">
+          <div class="pipeline-detail-card">
+            <span class="pipeline-detail-value">8</span>
+            <span class="pipeline-detail-label">Parallel Pipelines</span>
+          </div>
+          <div class="pipeline-detail-card">
+            <span class="pipeline-detail-value">200<span class="pipeline-detail-unit">MHz</span></span>
+            <span class="pipeline-detail-label">Clock Speed</span>
+          </div>
+          <div class="pipeline-detail-card">
+            <span class="pipeline-detail-value">16-bit</span>
+            <span class="pipeline-detail-label">Fixed-Point</span>
+          </div>
+          <div class="pipeline-detail-card">
+            <span class="pipeline-detail-value">&lt;1<span class="pipeline-detail-unit">%</span></span>
+            <span class="pipeline-detail-label">Error vs Float64</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== PERFORMANCE ========== -->
+  <section class="section section-alt" id="performance">
+    <div class="container">
+      <div class="section-header fade-in">
+        <span class="section-tag">Performance</span>
+        <h2 class="section-title">Benchmark Results</h2>
+        <p class="section-subtitle">
+          10,000 Monte Carlo paths for European call option pricing. Both platforms run the identical algorithm.
+        </p>
+      </div>
+
+      <div class="benchmark-group" data-benchmark>
+        <h3 class="benchmark-group-title">Latency <span class="benchmark-note">(lower is better)</span></h3>
+        <div class="benchmark-bars">
+          <div class="bench-row">
+            <span class="bench-label">FPGA</span>
+            <div class="bench-track">
+              <div class="bench-fill" data-bar-width="6.67" style="--bar-color: var(--color-accent);"></div>
+              <span class="bench-value" data-target="150" data-suffix="ms">0ms</span>
+            </div>
+          </div>
+          <div class="bench-row">
+            <span class="bench-label">CPU</span>
+            <div class="bench-track">
+              <div class="bench-fill" data-bar-width="100" style="--bar-color: var(--color-text-tertiary);"></div>
+              <span class="bench-value" data-target="2250" data-suffix="ms">0ms</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="benchmark-group" data-benchmark>
+        <h3 class="benchmark-group-title">Throughput <span class="benchmark-note">(higher is better)</span></h3>
+        <div class="benchmark-bars">
+          <div class="bench-row">
+            <span class="bench-label">FPGA</span>
+            <div class="bench-track">
+              <div class="bench-fill" data-bar-width="100" style="--bar-color: var(--color-accent);"></div>
+              <span class="bench-value" data-target="66666" data-suffix=" paths/s">0 paths/s</span>
+            </div>
+          </div>
+          <div class="bench-row">
+            <span class="bench-label">CPU</span>
+            <div class="bench-track">
+              <div class="bench-fill" data-bar-width="6.67" style="--bar-color: var(--color-text-tertiary);"></div>
+              <span class="bench-value" data-target="4444" data-suffix=" paths/s">0 paths/s</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="benchmark-counters" data-benchmark>
+        <div class="counter-card">
+          <span class="counter" data-target="15">0</span><span class="counter-suffix">x</span>
+          <span class="counter-label">Faster than CPU</span>
+        </div>
+        <div class="counter-card">
+          <span class="counter" data-target="99.2">0</span><span class="counter-suffix">%</span>
+          <span class="counter-label">Accuracy</span>
+        </div>
+        <div class="counter-card">
+          <span class="counter" data-target="66666" data-separator>0</span><span class="counter-suffix"> paths/s</span>
+          <span class="counter-label">FPGA Throughput</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== TEAM ========== -->
+  <section class="section" id="team">
+    <div class="container">
+      <div class="section-header fade-in">
+        <span class="section-tag">The Team</span>
+        <h2 class="section-title">Built by Engineers</h2>
+        <p class="section-subtitle">
+          University of Illinois at Urbana-Champaign
+        </p>
+      </div>
+      <div class="team-grid">
+        <div class="team-card fade-in" style="--avatar-hue: 220;">
+          <div class="team-avatar">AN</div>
+          <h3>Aditya Narayan</h3>
+          <span class="team-role">Team Member</span>
+        </div>
+        <div class="team-card fade-in" style="--avatar-hue: 195;">
+          <div class="team-avatar">CX</div>
+          <h3>Chris Xu</h3>
+          <span class="team-role">Team Member</span>
+        </div>
+        <div class="team-card fade-in" style="--avatar-hue: 180;">
+          <div class="team-avatar">DS</div>
+          <h3>Dev Shah</h3>
+          <span class="team-role">Team Member</span>
+        </div>
+        <div class="team-card fade-in" style="--avatar-hue: 30;">
+          <div class="team-avatar">K</div>
+          <h3>Kartik</h3>
+          <span class="team-role">Team Member</span>
+        </div>
+        <div class="team-card fade-in" style="--avatar-hue: 340;">
+          <div class="team-avatar">KS</div>
+          <h3>Kyle Stadler</h3>
+          <span class="team-role">Team Member</span>
+        </div>
+        <div class="team-card fade-in" style="--avatar-hue: 140;">
+          <div class="team-avatar">SK</div>
+          <h3>Sachin Khanna</h3>
+          <span class="team-role">Team Member</span>
+        </div>
+        <div class="team-card fade-in" style="--avatar-hue: 350;">
+          <div class="team-avatar">SB</div>
+          <h3>Sanjay Bharadwaj</h3>
+          <span class="team-role">Team Member</span>
+        </div>
+        <div class="team-card fade-in" style="--avatar-hue: 80;">
+          <div class="team-avatar">SN</div>
+          <h3>Satwik Nareddula</h3>
+          <span class="team-role">Team Member</span>
+        </div>
+        <div class="team-card fade-in" style="--avatar-hue: 10;">
+          <div class="team-avatar">VC</div>
+          <h3>Vik Chithra</h3>
+          <span class="team-role">Team Member</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== FOOTER ========== -->
+  <footer class="footer" id="footer">
+    <div class="container">
+      <div class="footer-cta fade-in">
+        <h2>See It Live at EOH 2026</h2>
+        <p>Watch both platforms race to price the same option in real time.</p>
+        <div class="footer-links">
+          <a href="#hero" class="btn btn-primary">Back to Top</a>
+          <a href="https://eoh.ec.illinois.edu" class="btn btn-outline" target="_blank" rel="noopener">EOH Website</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>&copy; 2026 MonteCarlo FPGA Team &middot; UIUC ECE</span>
+        <span class="footer-built">Built for IEEE Engineering Open House</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/scroll.js" defer></script>
+</body>
+</html>
