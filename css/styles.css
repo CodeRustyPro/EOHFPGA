@@ -4,7 +4,7 @@
 :root {
   --color-text: #1a1a2e;
   --color-text-secondary: #64748b;
-  --color-text-tertiary: #94a3b8;
+  --color-text-tertiary: #6b7280;
   --color-accent: #b45309;
   --color-accent-light: #d97706;
   --color-bg: #ffffff;
@@ -77,6 +77,23 @@ ul, ol {
   max-width: var(--max-width);
   margin: 0 auto;
   padding: 0 1.5rem;
+}
+
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 1rem;
+  padding: 0.5rem 1rem;
+  background: var(--color-text);
+  color: var(--color-bg);
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-weight: 600;
+  z-index: 200;
+}
+
+.skip-link:focus {
+  top: 1rem;
 }
 
 /* =========================================
@@ -707,7 +724,7 @@ ul, ol {
   height: 36px;
 }
 
-.pipeline-stage h4 {
+.pipeline-stage h3 {
   font-size: 0.9rem;
   font-weight: 700;
   margin-bottom: 0.25rem;

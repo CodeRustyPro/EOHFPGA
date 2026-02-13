@@ -10,12 +10,15 @@
   <meta property="og:type" content="website">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"></noscript>
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
 
   <!-- ========== NAVBAR ========== -->
+  <a class="skip-link" href="#problem">Skip to content</a>
   <nav class="navbar" id="navbar">
     <div class="nav-container">
       <a href="#hero" class="nav-logo">
@@ -104,6 +107,8 @@
       </svg>
     </div>
   </section>
+
+  <main>
 
   <!-- ========== PROBLEM ========== -->
   <section class="section" id="problem">
@@ -263,7 +268,7 @@
                 <line x1="6" y1="14" x2="30" y2="14" stroke="currentColor" stroke-width="1.5"/>
               </svg>
             </div>
-            <h4>Input</h4>
+            <h3>Input</h3>
             <p>S&#8320;, K, r, &#963;, T</p>
           </div>
           <svg class="pipeline-connector" data-connector="0" viewBox="0 0 60 4" preserveAspectRatio="none" aria-hidden="true">
@@ -279,7 +284,7 @@
                 <circle cx="18" cy="19" r="3" stroke="currentColor" stroke-width="1.5" opacity="0.4"/>
               </svg>
             </div>
-            <h4>RNG Engine</h4>
+            <h3>RNG Engine</h3>
             <p>Mersenne Twister + Box-Muller</p>
           </div>
           <svg class="pipeline-connector" data-connector="1" viewBox="0 0 60 4" preserveAspectRatio="none" aria-hidden="true">
@@ -292,7 +297,7 @@
                 <path d="M8 28L14 12L20 20L26 8L32 16" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.1"/>
               </svg>
             </div>
-            <h4>Simulator</h4>
+            <h3>Simulator</h3>
             <p>GBM Step Pipeline &times;8</p>
           </div>
           <svg class="pipeline-connector" data-connector="2" viewBox="0 0 60 4" preserveAspectRatio="none" aria-hidden="true">
@@ -306,7 +311,7 @@
                 <rect x="23" y="10" width="5" height="18" rx="1" fill="currentColor" opacity="0.4"/>
               </svg>
             </div>
-            <h4>Accumulator</h4>
+            <h3>Accumulator</h3>
             <p>Payoff &amp; Running Average</p>
           </div>
           <svg class="pipeline-connector" data-connector="3" viewBox="0 0 60 4" preserveAspectRatio="none" aria-hidden="true">
@@ -319,7 +324,7 @@
                 <path d="M13 18L16.5 21.5L23 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             </div>
-            <h4>Output</h4>
+            <h3>Output</h3>
             <p>Price &amp; Confidence Interval</p>
           </div>
         </div>
@@ -472,6 +477,8 @@
       </div>
     </div>
   </section>
+
+  </main>
 
   <!-- ========== FOOTER ========== -->
   <footer class="footer" id="footer">
