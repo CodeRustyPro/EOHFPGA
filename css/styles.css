@@ -160,6 +160,11 @@ ul, ol {
   color: var(--color-text);
 }
 
+.nav-link-cta {
+  color: var(--color-accent) !important;
+  font-weight: 600 !important;
+}
+
 /* Hamburger */
 .nav-hamburger {
   display: none;
