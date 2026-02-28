@@ -7,6 +7,9 @@
    3. If backend is unreachable, fall back to mock data
    ========================================= */
 
+// Auto-detect backend: only attempt live calls when running locally.
+// On GitHub Pages (or any non-localhost host) skip straight to mock data.
+const IS_LOCAL = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
 const API_BASE = 'http://localhost:8000';
 
 const LIVE_SAMPLE_SIZE = 500;
@@ -260,6 +263,14 @@ function generateMockData(ticker) {
    ========================================= */
 
 export async function fetchSimulationResults(ticker = 'SPY') {
+  // Skip live attempts entirely when not on localhost — avoids slow fetch timeouts
+  // on GitHub Pages and other static hosts where the backend will never be available.
+  if (!IS_LOCAL) {
+    console.log('[data] Not running locally — using mock data');
+    await new Promise(r => setTimeout(r, 600 + Math.random() * 400));
+    return generateMockData(ticker);
+  }
+
   // Attempt 1: full endpoint
   try {
     const result = await fetchFull(ticker);
