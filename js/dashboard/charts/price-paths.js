@@ -74,31 +74,72 @@ export function createPricePathsChart(selector, data) {
     .call(g => g.select('.domain').remove());
 
   // ---- Compute percentiles per day ----
+  // Use server-provided fan_chart (from all 100K paths) when available,
+  // otherwise fall back to computing from the 35 sample paths.
+  const fc = data.fan_chart;
   const stats = d3.range(days).map(dayIdx => {
+    if (fc) {
+      return {
+        p10: fc['10'][dayIdx],
+        p25: fc['25'][dayIdx],
+        p50: fc['50'][dayIdx],
+        p75: fc['75'][dayIdx],
+        p90: fc['90'][dayIdx],
+        mean: fc['50'][dayIdx],
+      };
+    }
     const dayPrices = paths.map(p => p[dayIdx]).sort(d3.ascending);
     return {
       p10: d3.quantile(dayPrices, 0.1),
+      p25: d3.quantile(dayPrices, 0.25),
+      p50: d3.quantile(dayPrices, 0.5),
+      p75: d3.quantile(dayPrices, 0.75),
       p90: d3.quantile(dayPrices, 0.9),
       mean: d3.mean(dayPrices),
     };
   });
 
-  // ---- Confidence band ----
-  const areaGen = d3.area()
+  // Inner band gradient (25th–75th)
+  const innerBandGrad = defs.append('linearGradient')
+    .attr('id', 'innerBandGrad')
+    .attr('x1', 0).attr('y1', 0)
+    .attr('x2', 0).attr('y2', 1);
+  innerBandGrad.append('stop').attr('offset', '0%').attr('stop-color', '#f59e0b').attr('stop-opacity', 0.12);
+  innerBandGrad.append('stop').attr('offset', '50%').attr('stop-color', '#f59e0b').attr('stop-opacity', 0.06);
+  innerBandGrad.append('stop').attr('offset', '100%').attr('stop-color', '#f59e0b').attr('stop-opacity', 0.12);
+
+  // ---- Outer confidence band (10th–90th) ----
+  const outerAreaGen = d3.area()
     .x((_, i) => x(i))
     .y0(d => y(d.p10))
     .y1(d => y(d.p90))
     .curve(d3.curveMonotoneX);
 
-  const bandPath = g.append('path')
+  const outerBand = g.append('path')
     .datum(stats)
-    .attr('d', areaGen)
+    .attr('d', outerAreaGen)
     .attr('fill', 'url(#bandGrad)')
     .attr('stroke', 'none');
 
+  // ---- Inner confidence band (25th–75th) ----
+  const innerAreaGen = d3.area()
+    .x((_, i) => x(i))
+    .y0(d => y(d.p25))
+    .y1(d => y(d.p75))
+    .curve(d3.curveMonotoneX);
+
+  const innerBand = g.append('path')
+    .datum(stats)
+    .attr('d', innerAreaGen)
+    .attr('fill', 'url(#innerBandGrad)')
+    .attr('stroke', 'none');
+
   if (!prefersReducedMotion) {
-    bandPath.attr('opacity', 0)
+    outerBand.attr('opacity', 0)
       .transition().duration(dur(1000)).delay(dur(300))
+      .attr('opacity', 1);
+    innerBand.attr('opacity', 0)
+      .transition().duration(dur(1000)).delay(dur(400))
       .attr('opacity', 1);
   }
 
@@ -134,8 +175,8 @@ export function createPricePathsChart(selector, data) {
     });
   }
 
-  // ---- Mean path (glowing) ----
-  const meanLine = stats.map(d => d.mean);
+  // ---- Median path (glowing) ----
+  const meanLine = stats.map(d => d.p50 ?? d.mean);
 
   // Glow layer (thicker, blurred)
   g.append('path')

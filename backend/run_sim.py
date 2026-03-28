@@ -70,6 +70,9 @@ class SimulationResults(BaseModel):
     histogram_cpu_counts: list[int]
     drawdown_bin_edges: list[str]
     drawdown_counts: list[int]
+    sharpe_ratio: float
+    throughput_paths_per_sec: float
+    fan_chart: dict[str, list[float]]
     sample_paths: list[list[float]]
 
 
@@ -136,7 +139,20 @@ def simulation_results(ticker: str = "SPY", sample_size: int = 35):
         fpga_counts + np.random.randint(-2, 3, size=fpga_counts.shape), 0, None
     )
 
-    # --- 7. Sample paths for visualization ---
+    # --- 7. Sharpe ratio ---
+    sharpe = round(float(mu / sigma), 2) if sigma > 0 else 0.0
+
+    # --- 8. Throughput ---
+    throughput = round(n_paths / (cpu_elapsed_ms / 1000.0))
+
+    # --- 9. Fan chart (percentile bands from all 100K paths) ---
+    fan_percentiles = [10, 25, 50, 75, 90]
+    fan_chart = {
+        str(p): np.percentile(paths, p, axis=0).round(2).tolist()
+        for p in fan_percentiles
+    }
+
+    # --- 10. Sample paths for visualization ---
     viz_paths = sample_paths(paths, sample_size=sample_size)
 
     return SimulationResults(
@@ -156,6 +172,9 @@ def simulation_results(ticker: str = "SPY", sample_size: int = 35):
         histogram_cpu_counts=cpu_counts.tolist(),
         drawdown_bin_edges=dd_labels,
         drawdown_counts=dd_counts,
+        sharpe_ratio=sharpe,
+        throughput_paths_per_sec=throughput,
+        fan_chart=fan_chart,
         sample_paths=viz_paths.tolist(),
     )
 

@@ -8,7 +8,7 @@ import { createPricePathsChart, destroyPricePathsChart } from './charts/price-pa
 import { createHistogramChart, destroyHistogramChart } from './charts/histogram.js';
 import { createDrawdownChart, destroyDrawdownChart } from './charts/drawdown.js';
 import { createPerformanceChart, destroyPerformanceChart } from './charts/performance.js';
-import { fmtMs, fmtCurrency, fmtPercent, fmtNumber, animateValue, debounce, prefersReducedMotion } from './utils.js';
+import { fmtMs, fmtCurrency, fmtPercent, fmtNumber, fmtCompact, animateValue, debounce, prefersReducedMotion } from './utils.js';
 
 /* =========================================
    1. STATE MACHINE
@@ -120,8 +120,10 @@ function renderMetrics(data) {
     { val: perf.fpga_time_ms, fmt: v => fmtMs(Math.round(v)), label: 'FPGA Time', accent: true },
     { val: perf.cpu_time_ms, fmt: v => fmtMs(Math.round(v)), label: 'CPU Time', accent: false },
     { val: perf.speed_improvement_x, fmt: v => v.toFixed(1) + 'x', label: 'Speedup', accent: true },
+    { val: perf.throughput_paths_per_sec, fmt: v => fmtCompact(Math.round(v)) + '/s', label: 'Throughput', accent: true },
     { val: risk.value_at_risk_95, fmt: v => fmtCurrency(v), label: 'VaR 95%', accent: false },
     { val: risk.probability_of_profit, fmt: v => fmtPercent(v), label: 'Profit Prob.', accent: false },
+    { val: risk.sharpe_ratio, fmt: v => v.toFixed(2), label: 'Sharpe Ratio', accent: false },
   ];
 
   els.metricsRow.innerHTML = metrics.map((m, i) => `

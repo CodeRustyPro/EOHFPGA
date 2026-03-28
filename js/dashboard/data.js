@@ -86,12 +86,31 @@ function computeStatsFromPaths(paths, startPrice) {
     maxDrawdowns.filter(dd => dd >= lo && dd < hi).length
   );
 
+  // Sharpe ratio from empirical returns
+  const returns = finalPrices.map(p => (p / startPrice) - 1);
+  const meanRet = returns.reduce((s, v) => s + v, 0) / returns.length;
+  const stdRet = Math.sqrt(returns.reduce((s, v) => s + (v - meanRet) ** 2, 0) / (returns.length - 1));
+  const sharpe = stdRet > 0 ? parseFloat((meanRet / stdRet).toFixed(2)) : 0;
+
+  // Fan chart percentiles from all paths
+  const fanPercentiles = [10, 25, 50, 75, 90];
+  const fanChart = {};
+  for (const p of fanPercentiles) {
+    fanChart[String(p)] = [];
+    for (let d = 0; d < days; d++) {
+      const col = paths.map(path => path[d]).sort((a, b) => a - b);
+      const idx = Math.floor((p / 100) * col.length);
+      fanChart[String(p)].push(parseFloat(col[Math.min(idx, col.length - 1)].toFixed(2)));
+    }
+  }
+
   return {
     risk_statistics: {
       value_at_risk_95: parseFloat(var95.toFixed(2)),
       conditional_value_at_risk_95: parseFloat(cvar95.toFixed(2)),
       probability_of_profit: parseFloat(probProfit.toFixed(1)),
       average_drawdown_days: Math.round(avgDrawdown),
+      sharpe_ratio: sharpe,
     },
     histogram_data: {
       bin_edges: binEdges,
@@ -102,6 +121,7 @@ function computeStatsFromPaths(paths, startPrice) {
       bin_edges: ddLabels,
       counts: ddCounts,
     },
+    fan_chart: fanChart,
   };
 }
 
@@ -126,12 +146,14 @@ async function fetchFull(ticker) {
         fpga_time_ms: d.fpga_time_ms,
         cpu_time_ms: d.cpu_time_ms,
         speed_improvement_x: d.speed_improvement_x,
+        throughput_paths_per_sec: d.throughput_paths_per_sec,
       },
       risk_statistics: {
         value_at_risk_95: d.value_at_risk_95,
         conditional_value_at_risk_95: d.conditional_value_at_risk_95,
         probability_of_profit: d.probability_of_profit,
         average_drawdown_days: d.average_drawdown_days,
+        sharpe_ratio: d.sharpe_ratio,
       },
       histogram_data: {
         bin_edges: d.histogram_bin_edges,
@@ -142,6 +164,7 @@ async function fetchFull(ticker) {
         bin_edges: d.drawdown_bin_edges,
         counts: d.drawdown_counts,
       },
+      fan_chart: d.fan_chart,
       price_paths: d.sample_paths,
     },
   };
@@ -184,6 +207,7 @@ async function fetchRawPaths(ticker) {
         fpga_time_ms: fpgaTime,
         cpu_time_ms: cpuTime,
         speed_improvement_x: parseFloat((cpuTime / fpgaTime).toFixed(1)),
+        throughput_paths_per_sec: Math.round(allPaths.length / (cpuTime / 1000)),
       },
       ...stats,
       price_paths: vizPaths,
@@ -248,6 +272,7 @@ function generateMockData(ticker) {
         fpga_time_ms: fpgaTime,
         cpu_time_ms: cpuTime,
         speed_improvement_x: parseFloat((cpuTime / fpgaTime).toFixed(1)),
+        throughput_paths_per_sec: Math.round(numPaths / (cpuTime / 1000)),
       },
       ...stats,
       price_paths: vizPaths,
